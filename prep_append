@@ -1,0 +1,16 @@
+find . -name \*.jar -delete
+
+python3 /usr/share/java-utils/pom_editor.py pom_xpath_remove pom:extensions
+python3 /usr/share/java-utils/pom_editor.py pom_add_dep org.apache.maven:maven-artifact maven-cal10n-plugin
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module cal10n-site
+python3 /usr/share/java-utils/pom_editor.py pom_disable_module maven-cal10n-plugin-smoke
+python3 /usr/share/java-utils/mvn_package.py :*-{plugin} @1
+
+# Disable default-jar execution of maven-jar-plugin, which is causing
+# problems with version 3.0.0 of the plugin.
+python3 /usr/share/java-utils/pom_editor.py pom_xpath_inject "pom:plugin[pom:artifactId='maven-jar-plugin']/pom:executions" "
+
+    <execution>
+      <id>default-jar</id>
+      <phase>skip</phase>
+    </execution>" cal10n-api
